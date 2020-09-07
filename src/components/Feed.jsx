@@ -1,10 +1,19 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./Feed.css";
 import StoryReel from "./StoryReel.jsx";
 import MessageSender from "./MessageSender.jsx";
 import Post from "./Post";
+import db from "../firebase.jsx";
 
 function Feed() {
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    db.collection("posts").onSnapshot((snapshot) =>
+      setPosts(snapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() })))
+    );
+  }, []);
+
   return (
     <div className="feed">
       <StoryReel />
@@ -15,17 +24,17 @@ function Feed() {
         username="Shahid"
         image="img1.jpg"
       />
-      <Post
-        message="Today Kamran's birthday "
-        username="Kamran"
-        profilePic="profileimg2.jpg"
-      />
-      <Post
-        message="React Hackathon is going on "
-        username="Kamran"
-        profilePic="profileimg3.jpg"
-        image="img3.jpg"
-      />
+
+      {posts.map((post) => {
+        <Post
+          key={post.id}
+          profilePic={post.profilePic}
+          message={post.message}
+          timestamp={post.timestamp}
+          username={post.username}
+          image={post.image}
+        />;
+      })}
     </div>
   );
 }
