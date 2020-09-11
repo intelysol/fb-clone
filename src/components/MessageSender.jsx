@@ -5,14 +5,26 @@ import VideocamIcon from "@material-ui/icons/Videocam";
 import PhotoLibraryIcon from "@material-ui/icons/PhotoLibrary";
 import InsertEmotionIcon from "@material-ui/icons/InsertEmoticon";
 import { useStateValue } from "./StateProvider.js";
+import db from "../firebase";
+import firebase from "firebase";
 
 function MessageSender() {
   const [{ user }, dispatch] = useStateValue();
   const [input, setInput] = useState("");
-  const [inputUrl, setInputUrl] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    db.collection("posts").add({
+      message: input,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      profilePic: user.photoURL,
+      username: user.displayName,
+      image: imageUrl,
+    });
+    setImageUrl("");
+    setInput("");
   };
   return (
     <div className="messageSender">
@@ -23,14 +35,14 @@ function MessageSender() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             className="messageSender__input"
-            placeholder="what's on your mind"
+            placeholder={`what's on your mind, ${user.displayName}`}
           />
           <input
-            value={inputUrl}
-            onChange={(e) => setInputUrl(e.target.value)}
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
             placeholder="image URL (Optional)"
           />
-          <button onClick="{this.handleSubmit.bind(this)}" type="submit">
+          <button onClick={handleSubmit} type="submit">
             Hidden Sumbit
           </button>
         </form>
